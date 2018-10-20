@@ -16,7 +16,7 @@ namespace cleaner{
       *gp << "'-' binary" << gp->binFmt1d(points, "record") << "with lines title 'Value at initial state'\n";
       gp->sendBinary1d(points);
       gp->flush();
-  }
+    }
 
     void qlearning::solve(){
       double r;
@@ -67,7 +67,7 @@ namespace cleaner{
     void qlearning::backup(int s, int a, int ss, double r){
       std::vector<double> p = phi(s,a);
       for(int i = 0; i < p.size; i++){
-        this->theta[i] += this->learning_rate * (r + this->gamma*getValueAt(ss) - getScalar(s,a))) * p[i];
+        this->theta[i] += this->learning_rate * (r + this->gamma*getValueAt(ss) - getScalar(s,a)) * p[i];
       }
     }
 
@@ -82,42 +82,61 @@ namespace cleaner{
       }
     }
 
+    action NearestDirtyDirection(){
+      action a = action::LEFT;
+      return a;
+    }
+
     std::vector<double> qlearning::phi(int s, int a){
       std::vector<double> p;
+      this->nb_pi = 11;
       for(int i = 0; i < this->nb_pi; i++){
         this->p.emplace(i, 0.0);
       }
       // Si on est sur la base, on veut que le robot se recharge
       if(s.getBase() && s.getBattery < this->cbattery && a  == action::CHARGE){
-        p[0]= 10;
+        p[0]= 10.0;
       }
       // Si on a juste assez de batterie pour revenir à la base, on revient
       // TODO: Position base?
       if((int(s.getPose()) / 10 + int(s.getPose()) % 10 == s.getBattery()) && (a  == action::LEFT || a  == action::UP){
-        p[0]= 10;
+        p[1]= 10.0;
       }
       // Si case sale, on nettoie
-      if(){
-
+      if( s.getGrid(s.getPose()) && a == action::CLEAN ){
+        p[2]= 10.0;
       }
       // ! Si pas de mur à gauche ou case de gauche est clean
       if( !(s.getPose() % this->width == 0 || s.getGrid(s.getPose()-1)) && a == action::LEFT){
-
+        p[3]= 10.0;
       }
       // ! Si pas de mur en haut ou case en haut est clean
-      else if(){
-
+      else if( !(s.getPose() % this->height == 0 || s.getGrid(s.getPose()-this->width)) && a == action::UP ){
+        p[4]= 10.0;
       }
       // ! Si pas de mur à droite ou case à droit est clean
-      else if(){
-
+      else if( !(s.getPose() % this->width == this->width || s.getGrid(s.getPose()+1)) && a == action::RIGHT ){
+        p[5]= 10.0;
       }
       // ! Si pas de mur en bas ou case en bas est clean
-      else if(){
-
+      else if( !(s.getPose() % this->height == this->height || s.getGrid(s.getPose()+this->width)) && a == action::DOWN ){
+        p[6]= 10.0;
       }
       // ! Si que des murs et des cases nettoyées autour, case sale la plus proche
-      else if(){
+      else if((s.getPose() % this->width == 0 || s.getGrid(s.getPose()-1)) && (s.getPose() % this->height == 0 || s.getGrid(s.getPose()-this->width)) && (s.getPose() % this->width == this->width || s.getGrid(s.getPose()+1)) && (s.getPose() % this->height == this->height || s.getGrid(s.getPose()+this->width))) {
+        action a = NearestDirtyDirection();
+        if( a == action:LEFT ){
+          p[7] = 10.0;
+        }
+        else if ( a == action:UP ){
+          p[8] = 10.0;
+        }
+        else if ( a == action:RIGHT ){
+          p[9] = 10.0;
+        }
+        else if ( a == action:DOWN ){
+          p[10] = 10.0;
+        }
       }
       return p;
     }
@@ -127,8 +146,7 @@ namespace cleaner{
       std::vector<double> p = phi(s,a);
       for(int i = 0; i < p.size; i++){
           result+=this->theta[i] * p[i];
-        }
       }
       return result;
-  }
+    }
 }
