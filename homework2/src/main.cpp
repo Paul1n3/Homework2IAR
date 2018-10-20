@@ -7,7 +7,7 @@
 
 int main(){
   srand(time(NULL));
-  cleaner::world w(10,10,3,3);
+  cleaner::world w(10,10,10,5);
   std::cout << w << std::endl;
 
   printf("%d", w.getNumStates());

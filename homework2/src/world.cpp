@@ -59,16 +59,6 @@ namespace cleaner{
     return true;
   }
 
-  bool world::isClean(size posCleaner, int s){
-    bool clean = false;
-    for(size i=0; i<this->num_dirty_cells; ++i){
-      if(this->dirty_cells_2_entries[i] == posCleaner){
-        clean = getState(s)->getGrid()[i];
-      }
-    }
-    return clean;
-  }
-
   void world::populate(){
     int cell, battery, pose, base = 0;
 

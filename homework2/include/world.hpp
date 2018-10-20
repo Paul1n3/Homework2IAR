@@ -43,7 +43,6 @@ namespace cleaner{
     bool sound(double) const;
     std::vector<bool> init(size);
     std::vector<bool> next(size);
-    bool getGrid(std::vector<bool>const&, size) const;
     bool compare(std::vector<bool>const&, std::vector<bool>const&) const;
     bool compare(std::vector<bool>const&, std::vector<bool>const&, int) const;
 
@@ -60,7 +59,7 @@ namespace cleaner{
       std::vector<state*>const& getStates() const;
       double probability(state* const, action, state* const)  const;
       void execute(int, action, int&, double&);
-      bool isClean(size, int);
+      bool getGrid(std::vector<bool>const&, size) const;
 
       /*!
       * \fn std::ostream& operator<<(std::ostream&, const world&)

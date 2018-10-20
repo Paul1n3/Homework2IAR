@@ -72,7 +72,7 @@ namespace cleaner{
     }
 
     void qlearning::init(){
-      this->nb_pi = 2;//11;
+      this->nb_pi = 7;
       for(int i=0; i<this->nb_pi; i++){
         this->theta.push_back(0.0);
       }
@@ -84,6 +84,15 @@ namespace cleaner{
     }
 
     std::vector<double> qlearning::defPhi(int s, int a){
+      printf("Current state: %d, Position: %d, Base? : %d, Sale? %d, action : %d\n", s, w.getState(s)->getPose(), w.getState(s)->getBase(), w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose()), a);
+      /*std::vector<bool> grid = w.getState(s)->getGrid();
+      printf("Grid :   ");
+      for (std::vector<bool>::iterator it = grid.begin() ; it != grid.end(); ++it){
+        std::cout << std::boolalpha << *it;
+        //printf("%s ", *it);
+      }
+      printf("\n");*/
+
       std::vector<double> p;
       for(int i = 0; i < this->nb_pi; i++){
         p.push_back(0.0);
@@ -98,26 +107,43 @@ namespace cleaner{
         p[1]= 10.0;
       }
       // Si case sale, on nettoie
-      if(w.isClean(w.getState(s)->getPose(), s) && a == action::CLEAN){
+      if(!w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose()) && a == action::CLEAN){
         p[2]= 10.0;
       }
+
+      bool condition = true;
       // ! Si pas de mur à gauche ou case de gauche est clean
-      if( !(w.getState(s)->getPose() % w.getWidth() == 0 || w.isClean(w.getState(s)->getPose() - 1, s - 3)) && a == action::LEFT){
-        p[3]= 10.0;
+      if(w.getState(s)->getPose() > 0){
+        if(!(w.getState(s)->getPose() % w.getWidth() == 0 /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() - 1)*/) && a == action::LEFT){
+          p[3]= 10.0;
+          condition = false;
+        }
       }
-      /*// ! Si pas de mur en haut ou case en haut est clean
-      else if( !(s.getPose() % w.getHeight() == 0 || s.getGrid(s.getPose()-w.getWidth())) && a == action::UP ){
-        p[4]= 10.0;
+      // ! Si pas de mur en haut ou case en haut est clean
+      if(w.getState(s)->getPose() > (w.getWidth() - 1) && condition){
+        if( !(w.getState(s)->getPose() % w.getHeight() == 0 /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() - w.getWidth())*/) && a == action::UP ){
+          p[4]= 10.0;
+          condition = false;
+        }
       }
-      // ! Si pas de mur à droite ou case à droit est clean
-      else if( !(s.getPose() % w.getWidth() == w.getWidth() || s.getGrid(s.getPose()+1)) && a == action::RIGHT ){
-        p[5]= 10.0;
+      // ! Si pas de mur à droite ou case à droite est clean
+      if(w.getState(s)->getPose() < w.getHeight() * w.getWidth() - 1 && condition){
+        if(!(w.getState(s)->getPose() % w.getWidth() == w.getWidth() /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() + 1)*/) && a == action::RIGHT ){
+          p[5]= 10.0;
+          condition = false;
+        }
       }
       // ! Si pas de mur en bas ou case en bas est clean
-      else if( !(s.getPose() % w.getHeight() == w.getHeight() || s.getGrid(s.getPose()+w.getWidth())) && a == action::DOWN ){
-        p[6]= 10.0;
+      if(w.getState(s)->getPose() < ((w.getWidth()*w.getHeight())-(w.getWidth() - 1)) && condition){
+        if( !(w.getState(s)->getPose() % w.getHeight() == 0 /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() + w.getWidth())*/) && a == action::UP ){
+          p[6]= 10.0;
+          condition = false;
+        }
       }
-      // ! Si que des murs et des cases nettoyées autour, case sale la plus proche
+      if(condition){
+        p[7] = 10;
+      }
+      /*// ! Si que des murs et des cases nettoyées autour, case sale la plus proche
       else if((s.getPose() % w.getWidth() == 0 || s.getGrid(s.getPose()-1)) && (s.getPose() % w.getHeight() == 0 || s.getGrid(s.getPose()-w.getWidth())) && (s.getPose() % w.getWidth() == w.getWidth() || s.getGrid(s.getPose()+1)) && (s.getPose() % w.getHeight() == w.getHeight() || s.getGrid(s.getPose()+w.getWidth()))) {
         action a = NearestDirtyDirection();
         if( a == action:LEFT ){
