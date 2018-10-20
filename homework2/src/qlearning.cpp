@@ -67,15 +67,14 @@ namespace cleaner{
     void qlearning::backup(int s, int a, int ss, double r){
       std::vector<double> p = defPhi(s,a);
       for(int i = 0; i < this->nb_pi; i++){
-        std::get<1>(this->theta[i]) += this->learning_rate * (r + this->gamma*getValueAt(ss) - this->getScalar(s,a)) * p[i];
+        this->theta[i] += this->learning_rate * (r + this->gamma*getValueAt(ss) - this->getScalar(s,a)) * p[i];
       }
     }
 
     void qlearning::init(){
       this->nb_pi = 2;//11;
       for(int i=0; i<this->nb_pi; i++){
-        this->theta.push_back(std::make_tuple(i, 0.0));
-        this->phi.push_back(std::make_tuple(i, 0.0));
+        this->theta.push_back(0.0);
       }
     }
 
@@ -87,7 +86,7 @@ namespace cleaner{
     std::vector<double> qlearning::defPhi(int s, int a){
       std::vector<double> p;
       for(int i = 0; i < this->nb_pi; i++){
-        this->p.emplace(i, 0.0);
+        p.push_back(0.0);
       }
       // Si on est sur la base, on veut que le robot se recharge
       if(w.getState(s)->getBase() && w.getState(s)->getBattery() < w.getCBattery() && a  == action::CHARGE){

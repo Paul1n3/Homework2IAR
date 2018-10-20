@@ -29,8 +29,7 @@ namespace cleaner{
     double gamma, epsilon, learning_rate;
     std::vector<std::pair<double, double>> points;
     int nb_pi;
-    std::vector<std::tuple<int, double>> theta;
-    std::vector<std::tuple<int, double>> phi;
+    std::vector<double> theta;
 
     void backup(int, int, int, double);
     //void plots();
