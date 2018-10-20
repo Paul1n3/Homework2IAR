@@ -53,6 +53,9 @@ namespace cleaner{
       int getNumStates() const;
       state* getState(int) const;
       state* getStartState() const;
+      size getWidth() const;
+      size getHeight() const;
+      size getCBattery() const;
       double reward(state* const, action) const;
       std::vector<state*>const& getStates() const;
       double probability(state* const, action, state* const)  const;

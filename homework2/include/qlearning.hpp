@@ -29,8 +29,8 @@ namespace cleaner{
     double gamma, epsilon, learning_rate;
     std::vector<std::pair<double, double>> points;
     int nb_pi;
-    std::unordered_map<int, std::unordered_map<int, double>> theta;
-    std::unordered_map<int, std::unordered_map<int, double>> phi;
+    std::vector<std::tuple<int, double>> theta;
+    std::vector<std::tuple<int, double>> phi;
 
     void backup(int, int, int, double);
     //void plots();
@@ -39,10 +39,12 @@ namespace cleaner{
   public:
     ~qlearning();
     qlearning(world const&, double, double, double, int);
-    //void solve();
-    //int greedy(int);
-    //double getValueAt(int);
-    //double qlearning::getScalar(int s, int a);
-    //double qlearning::phi(int s, int a);
+    void solve();
+    void plots();
+    int greedy(int);
+    double getValueAt(int);
+    double getScalar(int, int);
+    std::vector<double> defPhi(int, int);
+    action NearestDirtyDirection();
   };
 }

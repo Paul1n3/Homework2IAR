@@ -28,6 +28,18 @@ namespace cleaner{
     return this->getNumStates() > i ? this->states[ i ] : NULL;
   }
 
+  size world::getWidth() const{
+    return width;
+  }
+
+  size world::getHeight() const{
+    return height;
+  }
+
+  size world::getCBattery() const{
+    return cbattery;
+  }
+
   // check the dynamics model
   bool world::sound(double tolerance) const{
     for(int a=0; a<action::END; ++a) {

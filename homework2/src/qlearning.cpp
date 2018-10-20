@@ -39,7 +39,7 @@ namespace cleaner{
     double qlearning::getValueAt(int s){
       double value = MIN;
       for(int a=0; a<action::END; ++a){
-        value = std::max(value, getScalar());
+        value = std::max(value, this->getScalar(s, a));
       } return value;
     }
 
@@ -50,9 +50,9 @@ namespace cleaner{
 
       if( rd > this->epsilon ) {
         for(int a=0; a<action::END; ++a){
-          if( value < getScalar(s, a) ){
+          if( value < this->getScalar(s, a)){
             agreedy = a;
-            value = getScalar(s, a);
+            value = this->getScalar(s, a);
           }
         }
       }
@@ -65,44 +65,41 @@ namespace cleaner{
     }
 
     void qlearning::backup(int s, int a, int ss, double r){
-      std::vector<double> p = phi(s,a);
-      for(int i = 0; i < p.size; i++){
-        this->theta[i] += this->learning_rate * (r + this->gamma*getValueAt(ss) - getScalar(s,a)) * p[i];
+      std::vector<double> p = defPhi(s,a);
+      for(int i = 0; i < this->nb_pi; i++){
+        std::get<1>(this->theta[i]) += this->learning_rate * (r + this->gamma*getValueAt(ss) - this->getScalar(s,a)) * p[i];
       }
     }
 
     void qlearning::init(){
-      for(int s=0; s<this->w.getNumStates(); ++s){
-        this->theta.emplace(s,  std::unordered_map<int, double>());
-        this->phi.emplace(s,  std::unordered_map<int, double>());
-        for(int a=0; a<action::END; ++a){
-          this->theta.at(s).emplace(a, 0.0);
-          this->phi.at(s).emplace(a, 0.0);
-        }
+      this->nb_pi = 2;//11;
+      for(int i=0; i<this->nb_pi; i++){
+        this->theta.push_back(std::make_tuple(i, 0.0));
+        this->phi.push_back(std::make_tuple(i, 0.0));
       }
     }
 
-    action NearestDirtyDirection(){
+    action qlearning::NearestDirtyDirection(){
       action a = action::LEFT;
       return a;
     }
 
-    std::vector<double> qlearning::phi(int s, int a){
+    std::vector<double> qlearning::defPhi(int s, int a){
       std::vector<double> p;
-      this->nb_pi = 11;
       for(int i = 0; i < this->nb_pi; i++){
         this->p.emplace(i, 0.0);
       }
       // Si on est sur la base, on veut que le robot se recharge
-      if(s.getBase() && s.getBattery < this->cbattery && a  == action::CHARGE){
+      if(w.getState(s)->getBase() && w.getState(s)->getBattery() < w.getCBattery() && a  == action::CHARGE){
         p[0]= 10.0;
       }
       // Si on a juste assez de batterie pour revenir à la base, on revient
       // TODO: Position base?
-      if((int(s.getPose()) / 10 + int(s.getPose()) % 10 == s.getBattery()) && (a  == action::LEFT || a  == action::UP){
+      if((int(w.getState(s)->getBase()) / w.getHeight() + int(w.getState(s)->getBase()) % w.getWidth() == w.getState(s)->getBattery()) && (a  == action::LEFT || a  == action::UP)){
         p[1]= 10.0;
       }
-      // Si case sale, on nettoie
+      /*// Si case sale, on nettoie
+      for(int i = 0; i < w->)
       if( s.getGrid(s.getPose()) && a == action::CLEAN ){
         p[2]= 10.0;
       }
@@ -137,14 +134,14 @@ namespace cleaner{
         else if ( a == action:DOWN ){
           p[10] = 10.0;
         }
-      }
+      }*/
       return p;
     }
 
     double qlearning::getScalar(int s, int a){
       double result = 0.0;
-      std::vector<double> p = phi(s,a);
-      for(int i = 0; i < p.size; i++){
+      std::vector<double> p = defPhi(s,a);
+      for(int i = 0; i < this->nb_pi; i++){
           result+=this->theta[i] * p[i];
       }
       return result;
