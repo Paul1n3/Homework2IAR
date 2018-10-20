@@ -33,16 +33,16 @@ namespace cleaner{
     std::unordered_map<int, std::unordered_map<int, double>> phi;
 
     void backup(int, int, int, double);
-    void plots();
+    //void plots();
     void init();
 
   public:
     ~qlearning();
     qlearning(world const&, double, double, double, int);
-    void solve();
-    int greedy(int);
-    double getValueAt(int);
-    double qlearning::getScalar();
-    double qlearning::phi(int s, int a);
+    //void solve();
+    //int greedy(int);
+    //double getValueAt(int);
+    //double qlearning::getScalar(int s, int a);
+    //double qlearning::phi(int s, int a);
   };
 }

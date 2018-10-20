@@ -93,8 +93,8 @@ namespace cleaner{
       }
       // Si on a juste assez de batterie pour revenir à la base, on revient
       // TODO: Position base?
-      if(){
-
+      if((int(s.getPose()) / 10 + int(s.getPose()) % 10 == s.getBattery()) && (a  == action::LEFT || a  == action::UP){
+        p[0]= 10;
       }
       // Si case sale, on nettoie
       if(){
@@ -123,7 +123,7 @@ namespace cleaner{
     }
 
     double qlearning::getScalar(int s, int a){
-      double result;
+      double result = 0.0;
       std::vector<double> p = phi(s,a);
       for(int i = 0; i < p.size; i++){
           result+=this->theta[i] * p[i];
