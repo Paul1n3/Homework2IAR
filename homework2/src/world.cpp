@@ -6,14 +6,14 @@ namespace cleaner{
   }
 
   world::~world(){
-    for (std::vector< state* >::iterator it = this->states.begin() ; it != this->states.end(); ++it){
+    /*for (std::vector< state* >::iterator it = this->states.begin() ; it != this->states.end(); ++it){
      delete (*it);
     } this->states.clear();
 
     if( cbegin != NULL ){
       delete[] cbegin;
       cbegin = NULL;
-    }
+    }*/
   }
 
   state* world::getStartState() const{
@@ -40,6 +40,8 @@ namespace cleaner{
     return cbattery;
   }
 
+
+
   // check the dynamics model
   bool world::sound(double tolerance) const{
     for(int a=0; a<action::END; ++a) {
@@ -55,6 +57,16 @@ namespace cleaner{
     }
 
     return true;
+  }
+
+  bool world::isClean(size posCleaner, int s){
+    bool clean = false;
+    for(size i=0; i<this->num_dirty_cells; ++i){
+      if(this->dirty_cells_2_entries[i] == posCleaner){
+        clean = getState(s)->getGrid()[i];
+      }
+    }
+    return clean;
   }
 
   void world::populate(){

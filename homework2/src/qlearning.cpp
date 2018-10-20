@@ -7,7 +7,7 @@ namespace cleaner{
     }
 
     qlearning::~qlearning(){
-      delete gp;
+      //delete gp;
     }
 
     void qlearning::plots(){
@@ -97,29 +97,28 @@ namespace cleaner{
       if((int(w.getState(s)->getBase()) / w.getHeight() + int(w.getState(s)->getBase()) % w.getWidth() == w.getState(s)->getBattery()) && (a  == action::LEFT || a  == action::UP)){
         p[1]= 10.0;
       }
-      /*// Si case sale, on nettoie
-      for(int i = 0; i < w->)
-      if( s.getGrid(s.getPose()) && a == action::CLEAN ){
+      // Si case sale, on nettoie
+      if(w.isClean(w.getState(s)->getPose(), s) && a == action::CLEAN){
         p[2]= 10.0;
       }
       // ! Si pas de mur à gauche ou case de gauche est clean
-      if( !(s.getPose() % this->width == 0 || s.getGrid(s.getPose()-1)) && a == action::LEFT){
+      if( !(w.getState(s)->getPose() % w.getWidth() == 0 || w.isClean(w.getState(s)->getPose() - 1, s - 3)) && a == action::LEFT){
         p[3]= 10.0;
       }
-      // ! Si pas de mur en haut ou case en haut est clean
-      else if( !(s.getPose() % this->height == 0 || s.getGrid(s.getPose()-this->width)) && a == action::UP ){
+      /*// ! Si pas de mur en haut ou case en haut est clean
+      else if( !(s.getPose() % w.getHeight() == 0 || s.getGrid(s.getPose()-w.getWidth())) && a == action::UP ){
         p[4]= 10.0;
       }
       // ! Si pas de mur à droite ou case à droit est clean
-      else if( !(s.getPose() % this->width == this->width || s.getGrid(s.getPose()+1)) && a == action::RIGHT ){
+      else if( !(s.getPose() % w.getWidth() == w.getWidth() || s.getGrid(s.getPose()+1)) && a == action::RIGHT ){
         p[5]= 10.0;
       }
       // ! Si pas de mur en bas ou case en bas est clean
-      else if( !(s.getPose() % this->height == this->height || s.getGrid(s.getPose()+this->width)) && a == action::DOWN ){
+      else if( !(s.getPose() % w.getHeight() == w.getHeight() || s.getGrid(s.getPose()+w.getWidth())) && a == action::DOWN ){
         p[6]= 10.0;
       }
       // ! Si que des murs et des cases nettoyées autour, case sale la plus proche
-      else if((s.getPose() % this->width == 0 || s.getGrid(s.getPose()-1)) && (s.getPose() % this->height == 0 || s.getGrid(s.getPose()-this->width)) && (s.getPose() % this->width == this->width || s.getGrid(s.getPose()+1)) && (s.getPose() % this->height == this->height || s.getGrid(s.getPose()+this->width))) {
+      else if((s.getPose() % w.getWidth() == 0 || s.getGrid(s.getPose()-1)) && (s.getPose() % w.getHeight() == 0 || s.getGrid(s.getPose()-w.getWidth())) && (s.getPose() % w.getWidth() == w.getWidth() || s.getGrid(s.getPose()+1)) && (s.getPose() % w.getHeight() == w.getHeight() || s.getGrid(s.getPose()+w.getWidth()))) {
         action a = NearestDirtyDirection();
         if( a == action:LEFT ){
           p[7] = 10.0;

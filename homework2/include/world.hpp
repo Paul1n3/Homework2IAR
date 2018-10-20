@@ -60,6 +60,7 @@ namespace cleaner{
       std::vector<state*>const& getStates() const;
       double probability(state* const, action, state* const)  const;
       void execute(int, action, int&, double&);
+      bool isClean(size, int);
 
       /*!
       * \fn std::ostream& operator<<(std::ostream&, const world&)
