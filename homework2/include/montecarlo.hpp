@@ -30,8 +30,8 @@ namespace cleaner{
     std::vector<std::pair<double, double>> points;
     std::vector<std::tuple<int, int, int>> episode;
     std::unordered_map<int, std::unordered_map<int, int>> pf;
-    std::unordered_map<int, std::unordered_map<int, double>> qf;
-    std::unordered_map<int, std::unordered_map<int, std::pair<double, int>>> jf;
+    int nb_pi;
+    std::vector<double> theta;
 
     double getReturn(int i);
     void setEpisode();
@@ -45,5 +45,7 @@ namespace cleaner{
     void solve();
     action greedy(int);
     double getValueAt(int);
+    double getScalar(int, int);
+    std::vector<double> defPhi(int s, int a);
   };
 }
