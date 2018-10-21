@@ -21,7 +21,7 @@ namespace cleaner{
     void montecarlo::solve(){
       this->init();
       do{
-        //printf("Episode %d", cepisode);
+        //printf("Episode %d\n", this->cepisode);
         this->setEpisode();
         this->backup();
         //this->plots();
@@ -32,7 +32,8 @@ namespace cleaner{
       double value = MIN;
       for(int a=0; a<action::END; ++a){
         value = std::max(value, this->getScalar(s, a));
-      } return value;
+      }
+      return value;
     }
 
     action montecarlo::greedy(int s){
@@ -43,7 +44,8 @@ namespace cleaner{
           agreedy = static_cast<action>(a);
           value = this->getScalar(s, a);
         }
-      } return agreedy;
+      }
+      return agreedy;
     }
 
     double montecarlo::getReturn(int pose){
@@ -77,6 +79,7 @@ namespace cleaner{
           a = static_cast<action>(rand() % 7);
         }
 
+        ss = s;
         w.execute(s, a, ss, r);
 
         this->episode.push_back(std::make_tuple(s, a, r));
@@ -91,7 +94,7 @@ namespace cleaner{
 
     void montecarlo::backup(){
       int s, a;
-      double cumul;
+      double cumul  = 0.0;
 
       for(s=0; s<this->w.getNumStates(); ++s){
         for(a=0; a<action::END; ++a){

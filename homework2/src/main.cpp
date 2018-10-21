@@ -11,7 +11,7 @@ int main(){
   cleaner::world w(10,10,3,3);
   std::cout << w << std::endl;
 
-  printf("%d", w.getNumStates());
+  /*printf("%d", w.getNumStates());
   std::vector<bool> grid = w.getState(0)->getGrid();
   printf("Grid :   ");
   for (std::vector<bool>::iterator it = grid.begin() ; it != grid.end(); ++it){
@@ -27,7 +27,7 @@ int main(){
     }
   }
   printf("Nb d'état sur bases : %d\n", nbBases);
-  //printf("%d",w.getState(2399)->getPose());
+  //printf("%d",w.getState(2399)->getPose());*/
 
   // cleaner::dp dp_solver(w, 0.001, 0.99);
   // dp_solver.solve();

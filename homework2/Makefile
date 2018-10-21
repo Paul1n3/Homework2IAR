@@ -73,9 +73,9 @@ endif
 CXXFLAGS			:= $(CXXOPT) -I$(BOOSTINCDIR)
 
 ifeq ($(UNAME_S), Darwin)
-	CXXFLAGS += -O0 -W -Wall -pedantic -std=c++1y -DIL_STD
+	CXXFLAGS += -O2 -W -Wall -pedantic -std=c++1y -DIL_STD
 else
-	CXXFLAGS += -O0 -W -Wall -pedantic -std=c++1y -DIL_STD
+	CXXFLAGS += -O2 -W -Wall -pedantic -std=c++1y -DIL_STD
 endif
 
 #-----------------------------------------------------------------------------------------------------
