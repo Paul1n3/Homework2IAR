@@ -24,7 +24,8 @@ namespace cleaner{
   protected:
     world w;
     int episode = 0, episodes;
-    Gnuplot* gp = nullptr;
+    //Gnuplot* gp = nullptr;
+    Gnuplot gp;
     double MIN = -100000, MAX = 100000;
     double gamma, epsilon, learning_rate;
     std::vector<std::pair<double, double>> points;
@@ -46,5 +47,6 @@ namespace cleaner{
     double getScalar(int, int);
     std::vector<double> defPhi(int, int);
     action NearestDirtyDirection();
+    double getGainAt();
   };
 }

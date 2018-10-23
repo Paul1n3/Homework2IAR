@@ -3,20 +3,34 @@
 
 namespace cleaner{
     qlearning::qlearning(world const& w, double epsilon, double learning_rate, double gamma, int episodes) : w(w), episodes(episodes), gamma(gamma), epsilon(epsilon), learning_rate(learning_rate){
-      gp = new Gnuplot;
+      //gp = new Gnuplot;
     }
 
     qlearning::~qlearning(){
       //delete gp;
     }
 
-    void qlearning::plots(){
+    /*void qlearning::plots(){
       // std::cout << this->getValueAt(0) << std::endl;
       points.push_back(std::make_pair(this->episode, this->getValueAt(0)));
       *gp << "'-' binary" << gp->binFmt1d(points, "record") << "with lines title 'Value at initial state'\n";
       gp->sendBinary1d(points);
       gp->flush();
-    }
+    }*/
+
+    void qlearning::plots(){
+      std::cout << this->getGainAt() << std::endl;
+      points.push_back(std::make_pair(this->episode, this->getGainAt()));
+
+      gp << "set xlabel 'Episodes'\n";
+      gp << "set ylabel 'Mean Gain Value'\n";
+      gp << "plot '-' binary" << gp.binFmt1d(points, "record") << "with lines title 'Q-learning'\n";
+      gp.sendBinary1d(points);
+      gp.flush();
+  }
+
+
+
 
     void qlearning::solve(){
       double r;
@@ -36,13 +50,21 @@ namespace cleaner{
         }
         this->G.push_back(toto);
         //printf("episode %d = %f\n", this->episode, G[this->episode]);
-        // this->plots();
+        this->plots();
 
       }while( ++this->episode < this->episodes );
       for(int i = 0; i < this->episodes; i++){
         finalGain += G[i];
       }
       printf("Moyenne des gains = %f\n", finalGain / this->episodes);
+    }
+
+    double qlearning::getGainAt(){
+      double gain = 0.0;
+      for(int i = 0; i < this->episode; i++){
+        gain += G[i];
+      }
+      return gain / this->episode;
     }
 
     double qlearning::getValueAt(int s){

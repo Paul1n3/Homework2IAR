@@ -3,11 +3,11 @@
 
 namespace cleaner{
     montecarlo::montecarlo(world const& w, double epsilon, double learning_rate, double gamma, int episodes) : w(w), episodes(episodes), gamma(gamma), epsilon(epsilon), learning_rate(learning_rate){
-      gp = new Gnuplot;
+      //gp = new Gnuplot;
     }
 
     montecarlo::~montecarlo(){
-      delete gp;
+      //delete gp;
     }
 
     /*void montecarlo::plots(){
@@ -18,6 +18,17 @@ namespace cleaner{
       gp->flush();
   }*/
 
+    void montecarlo::plots(){
+      std::cout << this->getGainAt() << std::endl;
+      points.push_back(std::make_pair(this->cepisode, this->getGainAt()));
+
+      gp << "set xlabel 'Episodes'\n";
+      gp << "set ylabel 'Mean Gain Value'\n";
+      gp << "plot '-' binary" << gp.binFmt1d(points, "record") << "with lines title 'Q-learning'\n";
+      gp.sendBinary1d(points);
+      gp.flush();
+    }
+
     void montecarlo::solve(){
       this->init();
       do{
@@ -25,9 +36,13 @@ namespace cleaner{
         //printf("Episode %d\n", this->cepisode);
         this->setEpisode();
         this->backup();
-        //this->plots();
+        this->plots();
       }while( ++this->cepisode < this->episodes );
       printf("Final gain = %f\n", this->finalGain / this->episodes);
+    }
+
+    double montecarlo::getGainAt(){
+      return finalGain / this->cepisode;
     }
 
     double montecarlo::getValueAt(int s){
