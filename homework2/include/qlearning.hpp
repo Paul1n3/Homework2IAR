@@ -30,6 +30,7 @@ namespace cleaner{
     std::vector<std::pair<double, double>> points;
     int nb_pi;
     std::vector<double> theta;
+    std::vector<double> G;
 
     void backup(int, int, int, double);
     //void plots();

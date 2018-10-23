@@ -32,6 +32,7 @@ namespace cleaner{
     std::unordered_map<int, std::unordered_map<int, int>> pf;
     int nb_pi;
     std::vector<double> theta;
+    double finalGain;
 
     double getReturn(int i);
     void setEpisode();

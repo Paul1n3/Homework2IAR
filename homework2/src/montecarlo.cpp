@@ -21,11 +21,13 @@ namespace cleaner{
     void montecarlo::solve(){
       this->init();
       do{
+
         //printf("Episode %d\n", this->cepisode);
         this->setEpisode();
         this->backup();
         //this->plots();
       }while( ++this->cepisode < this->episodes );
+      printf("Final gain = %f\n", this->finalGain / this->episodes);
     }
 
     double montecarlo::getValueAt(int s){
@@ -71,7 +73,7 @@ namespace cleaner{
       }
 
       s = 0;
-      for(int i=0; i<100; i++){
+      for(int i=0; i<1000; i++){
         double rd = rand() / ((double) RAND_MAX);
         if( rd > this->epsilon ) {
           a = greedy(s);
@@ -99,17 +101,34 @@ namespace cleaner{
       for(s=0; s<this->w.getNumStates(); ++s){
         for(a=0; a<action::END; ++a){
           if( this->pf[s][a] > -1 ){
+            //printf("  Theta, cumul, p[i] : ");
             cumul = this->getReturn(this->pf[s][a]);
             std::vector<double> p = defPhi(s,a);
+            //printf("  Pi: ");
+            //for(int i = 0; i < this->nb_pi; i++){
+              //printf("%f", p[i]);
+            //}
+            //printf("\n");
             for(int i = 0; i < this->nb_pi; i++){
               this->theta[i] += this->learning_rate * (cumul - this->getScalar(s,a)) * p[i];
+              //printf("%f, %f, %f",theta[i], cumul, p[i]);
             }
+            if(s == 0){
+              this->finalGain += cumul;
+            }
+            //printf("\n");
           }
         }
       }
+      /*printf("  Theta: ");
+      for(int i = 0; i < this->nb_pi; i++){
+        printf("%f,   ", theta[i]);
+      }
+      printf("\n");*/
     }
 
     void montecarlo::init(){
+      this->finalGain = 0.0;
       for(int s=0; s<this->w.getNumStates(); ++s){
         this->pf.emplace(s,  std::unordered_map<int, int>());
         for(int a=0; a<action::END; ++a){
@@ -134,53 +153,53 @@ namespace cleaner{
 
       std::vector<double> p;
       for(int i = 0; i < this->nb_pi; i++){
-        p.push_back(0.0);
+        p.push_back(-1.0);
       }
       // Si on est sur la base, on veut que le robot se recharge
       if(w.getState(s)->getBase() && w.getState(s)->getBattery() < w.getCBattery() && a  == action::CHARGE){
-        p[0]= 10.0;
+        p[0]= 0.0;
       }
       // Si on a juste assez de batterie pour revenir à la base, on revient
       // TODO: Position base?
       if((int(w.getState(s)->getBase()) / w.getHeight() + int(w.getState(s)->getBase()) % w.getWidth() == w.getState(s)->getBattery()) && (a  == action::LEFT || a  == action::UP)){
-        p[1]= 10.0;
+        p[1]= 0.0;
       }
       // Si case sale, on nettoie
       if(!w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose()) && a == action::CLEAN){
-        p[2]= 10.0;
+        p[2]= 0.0;
       }
 
       bool condition = true;
       // ! Si pas de mur à gauche ou case de gauche est clean
       if(w.getState(s)->getPose() > 0){
         if(!(w.getState(s)->getPose() % w.getWidth() == 0 /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() - 1)*/) && a == action::LEFT){
-          p[3]= 10.0;
+          p[3]= 0.0;
           condition = false;
         }
       }
       // ! Si pas de mur en haut ou case en haut est clean
       if(w.getState(s)->getPose() > (w.getWidth() - 1) && condition){
         if( !(w.getState(s)->getPose() % w.getHeight() == 0 /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() - w.getWidth())*/) && a == action::UP ){
-          p[4]= 10.0;
+          p[4]= 0.0;
           condition = false;
         }
       }
       // ! Si pas de mur à droite ou case à droite est clean
       if(w.getState(s)->getPose() < w.getHeight() * w.getWidth() - 1 && condition){
         if(!(w.getState(s)->getPose() % w.getWidth() == w.getWidth() /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() + 1)*/) && a == action::RIGHT ){
-          p[5]= 10.0;
+          p[5]= 0.0;
           condition = false;
         }
       }
       // ! Si pas de mur en bas ou case en bas est clean
       if(w.getState(s)->getPose() < ((w.getWidth()*w.getHeight())-(w.getWidth() - 1)) && condition){
         if( !(w.getState(s)->getPose() % w.getHeight() == 0 /*|| !w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose() + w.getWidth())*/) && a == action::UP ){
-          p[6]= 10.0;
+          p[6]= 0.0;
           condition = false;
         }
       }
       if(condition){
-        p[7] = 10;
+        p[7] = 0.0;
       }
       /*// ! Si que des murs et des cases nettoyées autour, case sale la plus proche
       else if((s.getPose() % w.getWidth() == 0 || s.getGrid(s.getPose()-1)) && (s.getPose() % w.getHeight() == 0 || s.getGrid(s.getPose()-w.getWidth())) && (s.getPose() % w.getWidth() == w.getWidth() || s.getGrid(s.getPose()+1)) && (s.getPose() % w.getHeight() == w.getHeight() || s.getGrid(s.getPose()+w.getWidth()))) {
