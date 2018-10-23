@@ -38,11 +38,11 @@ namespace cleaner{
         this->backup();
         this->plots();
       }while( ++this->cepisode < this->episodes );
-      printf("Final gain = %f\n", this->finalGain / this->episodes);
+      printf("Final gain = %f\n", this->finalGain / (this->episodes * action::END));
     }
 
     double montecarlo::getGainAt(){
-      return finalGain / this->cepisode;
+      return finalGain / (this->cepisode * 7);
     }
 
     double montecarlo::getValueAt(int s){
@@ -112,6 +112,7 @@ namespace cleaner{
     void montecarlo::backup(){
       int s, a;
       double cumul  = 0.0;
+      //bool first = false;
 
       for(s=0; s<this->w.getNumStates(); ++s){
         for(a=0; a<action::END; ++a){
@@ -128,9 +129,10 @@ namespace cleaner{
               this->theta[i] += this->learning_rate * (cumul - this->getScalar(s,a)) * p[i];
               //printf("%f, %f, %f",theta[i], cumul, p[i]);
             }
-            if(s == 0){
-              this->finalGain += cumul;
-            }
+            //if(s == 0 && first == false){
+            this->finalGain += cumul;
+              //first = true;
+            //}
             //printf("\n");
           }
         }
