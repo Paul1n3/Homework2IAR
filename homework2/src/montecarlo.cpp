@@ -3,21 +3,13 @@
 
 namespace cleaner{
     montecarlo::montecarlo(world const& w, double epsilon, double learning_rate, double gamma, int episodes) : w(w), episodes(episodes), gamma(gamma), epsilon(epsilon), learning_rate(learning_rate){
-      //gp = new Gnuplot;
     }
 
     montecarlo::~montecarlo(){
-      //delete gp;
     }
 
-    /*void montecarlo::plots(){
-      // std::cout << this->getValueAt(0) << std::endl;
-      points.push_back(std::make_pair(this->cepisode, this->getValueAt(0)));
-      *gp << "'-' binary" << gp->binFmt1d(points, "record") << "with lines title 'Value at initial state'\n";
-      gp->sendBinary1d(points);
-      gp->flush();
-  }*/
-
+    // For each new episode, print the mean gain value
+    // (sum of gains since the beginning of the experiment) for state 0
     void montecarlo::plots(){
       std::cout << this->getGainAt() << std::endl;
       points.push_back(std::make_pair(this->cepisode, this->getGainAt()));
@@ -32,15 +24,14 @@ namespace cleaner{
     void montecarlo::solve(){
       this->init();
       do{
-
-        //printf("Episode %d\n", this->cepisode);
         this->setEpisode();
         this->backup();
         this->plots();
       }while( ++this->cepisode < this->episodes );
-      printf("Final gain = %f\n", this->finalGain / (this->episodes * action::END));
+      printf("Final mean gain = %f\n", this->finalGain / (this->episodes * action::END));
     }
 
+    // Get the current mean gain for state 0
     double montecarlo::getGainAt(){
       return finalGain / (this->cepisode * 7);
     }
@@ -109,39 +100,25 @@ namespace cleaner{
       }
     }
 
+    // Update the value of theta
     void montecarlo::backup(){
       int s, a;
       double cumul  = 0.0;
-      //bool first = false;
 
       for(s=0; s<this->w.getNumStates(); ++s){
         for(a=0; a<action::END; ++a){
           if( this->pf[s][a] > -1 ){
-            //printf("  Theta, cumul, p[i] : ");
             cumul = this->getReturn(this->pf[s][a]);
             std::vector<double> p = defPhi(s,a);
-            //printf("  Pi: ");
-            //for(int i = 0; i < this->nb_pi; i++){
-              //printf("%f", p[i]);
-            //}
-            //printf("\n");
             for(int i = 0; i < this->nb_pi; i++){
               this->theta[i] += this->learning_rate * (cumul - this->getScalar(s,a)) * p[i];
-              //printf("%f, %f, %f",theta[i], cumul, p[i]);
             }
-            //if(s == 0 && first == false){
-            this->finalGain += cumul;
-              //first = true;
-            //}
-            //printf("\n");
+            if(s == 0){
+              this->finalGain += cumul;
+            }
           }
         }
       }
-      /*printf("  Theta: ");
-      for(int i = 0; i < this->nb_pi; i++){
-        printf("%f,   ", theta[i]);
-      }
-      printf("\n");*/
     }
 
     void montecarlo::init(){
@@ -158,15 +135,8 @@ namespace cleaner{
       }
     }
 
+    // Compute the phi vector
     std::vector<double> montecarlo::defPhi(int s, int a){
-      //printf("Current state: %d, Position: %d, Base? : %d, Sale? %d, action : %d\n", s, w.getState(s)->getPose(), w.getState(s)->getBase(), w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose()), a);
-      /*std::vector<bool> grid = w.getState(s)->getGrid();
-      printf("Grid :   ");
-      for (std::vector<bool>::iterator it = grid.begin() ; it != grid.end(); ++it){
-        std::cout << std::boolalpha << *it;
-        //printf("%s ", *it);
-      }
-      printf("\n");*/
 
       std::vector<double> p;
       for(int i = 0; i < this->nb_pi; i++){
@@ -237,6 +207,7 @@ namespace cleaner{
       return p;
     }
 
+    // Get the result of theta * phi
     double montecarlo::getScalar(int s, int a){
       double result = 0.0;
       std::vector<double> p = defPhi(s,a);

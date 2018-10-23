@@ -3,21 +3,13 @@
 
 namespace cleaner{
     qlearning::qlearning(world const& w, double epsilon, double learning_rate, double gamma, int episodes) : w(w), episodes(episodes), gamma(gamma), epsilon(epsilon), learning_rate(learning_rate){
-      //gp = new Gnuplot;
     }
 
     qlearning::~qlearning(){
-      //delete gp;
     }
 
-    /*void qlearning::plots(){
-      // std::cout << this->getValueAt(0) << std::endl;
-      points.push_back(std::make_pair(this->episode, this->getValueAt(0)));
-      *gp << "'-' binary" << gp->binFmt1d(points, "record") << "with lines title 'Value at initial state'\n";
-      gp->sendBinary1d(points);
-      gp->flush();
-    }*/
-
+    // For each new episode, print the mean gain value
+    // (sum of gains since the beginning of the experiment) for state 0
     void qlearning::plots(){
       std::cout << this->getGainAt() << std::endl;
       points.push_back(std::make_pair(this->episode, this->getGainAt()));
@@ -30,35 +22,33 @@ namespace cleaner{
   }
 
 
-
-
     void qlearning::solve(){
       double r;
       int s, a, ss;
       this->init();
-      double toto;
+      double sumRewards;
       double finalGain = 0;
       do{
         s=0;
-        toto = 0.0;
+        sumRewards = 0.0;
         for(int i=0; i<100; i++){
           a = greedy(s);
           w.execute(s, static_cast<action>(a), ss, r);
           this->backup(s,a,ss,r);
           s = ss;
-          toto += r;
+          sumRewards += r;
         }
-        this->G.push_back(toto);
-        //printf("episode %d = %f\n", this->episode, G[this->episode]);
+        this->G.push_back(sumRewards);
         this->plots();
 
       }while( ++this->episode < this->episodes );
       for(int i = 0; i < this->episodes; i++){
         finalGain += G[i];
       }
-      printf("Moyenne des gains = %f\n", finalGain / this->episodes);
+      printf("Final mean gain = %f\n", finalGain / this->episodes);
     }
 
+    // Get the current mean gain for state 0
     double qlearning::getGainAt(){
       double gain = 0.0;
       for(int i = 0; i < this->episode; i++){
@@ -95,16 +85,12 @@ namespace cleaner{
       return agreedy;
     }
 
+    // Update the value of theta
     void qlearning::backup(int s, int a, int ss, double r){
       std::vector<double> p = defPhi(s,a);
       for(int i = 0; i < this->nb_pi; i++){
         this->theta[i] += this->learning_rate * (r + this->gamma*getValueAt(ss) - this->getScalar(s,a)) * p[i];
       }
-      //printf("  Theta: ");
-      //for(int i = 0; i < this->nb_pi; i++){
-        //printf("%f,   ", theta[i]);
-      //}
-      //printf("\n");
     }
 
     void qlearning::init(){
@@ -115,22 +101,8 @@ namespace cleaner{
 
     }
 
-    action qlearning::NearestDirtyDirection(){
-      action a = action::LEFT;
-      return a;
-    }
-
-
-
+    // Compute the phi vector
     std::vector<double> qlearning::defPhi(int s, int a){
-      //printf("Current state: %d, Position: %d, Base? : %d, Sale? %d, action : %d\n", s, w.getState(s)->getPose(), w.getState(s)->getBase(), w.getGrid(w.getState(s)->getGrid(), w.getState(s)->getPose()), a);
-      /*std::vector<bool> grid = w.getState(s)->getGrid();
-      printf("Grid :   ");
-      for (std::vector<bool>::iterator it = grid.begin() ; it != grid.end(); ++it){
-        std::cout << std::boolalpha << *it;
-        //printf("%s ", *it);
-      }
-      printf("\n");*/
 
       std::vector<double> p;
       for(int i = 0; i < this->nb_pi; i++){
@@ -201,6 +173,7 @@ namespace cleaner{
       return p;
     }
 
+    // Get the result of theta * phi
     double qlearning::getScalar(int s, int a){
       double result = 0.0;
       std::vector<double> p = defPhi(s,a);
